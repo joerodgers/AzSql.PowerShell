@@ -1,5 +1,38 @@
-## Example Usage
+## Setup/Configuration
 
+#### Create a new Azure AD App Principal
+<p align="center" width="100%">
+    <kbd><img src="https://user-images.githubusercontent.com/28455042/194133491-f30d9921-6b04-4e50-98ba-c56f1e907727.png" width="800"></kbd>
+</p>
+
+#### Upload a certificate (or use a secret)
+<p align="center" width="100%">
+    <kbd><img src="https://user-images.githubusercontent.com/28455042/194133493-cf3956d4-a5ce-4537-bee2-015952636327.png" width="800"></kbd>
+</p>
+
+#### Create a secret (or use a certificate)
+<p align="center" width="100%">
+    <kbd><img src="https://user-images.githubusercontent.com/28455042/194133492-2c8953bb-a6ca-4002-ac2c-a55cbb13fb03.png" width="800"></kbd>
+</p>
+
+#### Create Azure AD Security Group & Add App Principal(s)
+<p align="center" width="100%">
+    <kbd><img src="https://user-images.githubusercontent.com/28455042/194136607-c1fac1ad-c4f0-41af-9587-e7951eec71a5.png" width="800"></kbd>
+</p>
+
+#### Create Azure AD Security Group & Add App Principal(s)
+<p align="center" width="100%">
+    <kbd><img src="https://user-images.githubusercontent.com/28455042/194136607-c1fac1ad-c4f0-41af-9587-e7951eec71a5.png" width="800"></kbd>
+</p>
+
+#### Grant Azure AD Security Group Access to the Azure SQL database
+
+```SQL
+CREATE USER [azure-sql-admins] FROM EXTERNAL PROVIDER
+GO
+EXEC sp_addrolemember 'db_owner', [azure-sql-admins]
+```
+## Example Usage
 ### Authenticate to Azure as a service principal
 
 ```Powershell
