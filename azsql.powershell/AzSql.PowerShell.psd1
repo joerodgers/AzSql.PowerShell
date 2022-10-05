@@ -12,7 +12,7 @@
     Description = 'Module to faciliate manipulating Azure SQL database schema and table data.'
 
     # Minimum version of the Windows PowerShell engine required by this module
-    PowerShellVersion = '5.2'
+    PowerShellVersion = '5.1'
 
     # import classes
     ScriptsToProcess = @()
