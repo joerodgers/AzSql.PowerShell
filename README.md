@@ -3,11 +3,17 @@
 ### Authenticate to Azure as a service principal
 
 ```Powershell
-
 Connect-AzSqlPsAccount `
-            -ClientId              $env:O365_CLIENTID `
-            -CertificateThumbprint $env:O365_THUMBPRINT `
-            -TenantId              $env:O365_TENANTID
+    -ClientId              $env:O365_CLIENTID `
+    -CertificateThumbprint $env:O365_THUMBPRINT `
+    -TenantId              $env:O365_TENANTID
+```
+
+```Powershell
+Connect-AzSqlPsAccount `
+            -ClientId     $env:O365_CLIENTID `
+            -ClientSecret $env:O365_CLIENTSECRET `
+            -TenantId     $env:O365_TENANTID
 ```
 
 ### Execute query to retrive rows
