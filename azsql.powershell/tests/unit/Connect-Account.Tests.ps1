@@ -34,7 +34,7 @@
         }
 
         # build mocks
-        Mock -CommandName "Connect-AzAccount"                       -ModuleName "AzSql.PowerShell" -Verifiable -ParameterFilter $filter 
+        Mock -CommandName "Connect-AzAccount"        -ModuleName "AzSql.PowerShell" -Verifiable -ParameterFilter $filter 
         Mock -CommandName "Assert-ServiceConnection" -ModuleName "AzSql.PowerShell" -Verifiable 
 
         # execute mock login
@@ -55,10 +55,25 @@
         }
 
         # build mocks
-        Mock -CommandName "Connect-AzAccount"                       -ModuleName "AzSql.PowerShell" -Verifiable -ParameterFilter $filter 
+        Mock -CommandName "Connect-AzAccount"        -ModuleName "AzSql.PowerShell" -Verifiable -ParameterFilter $filter 
         Mock -CommandName "Assert-ServiceConnection" -ModuleName "AzSql.PowerShell" -Verifiable 
 
         Connect-AzSqlPsAccount -ClientId $mockClientId -CertificateThumbprint $mockThumbprint -TenantId $mockTenantId
+
+        # verify mocks
+        Should -InvokeVerifiable
+    }
+
+    It "should create a context using msi parameterset" {
+
+        $filter = { $Identity -eq $true }
+
+        # build mocks
+        Mock -CommandName "Connect-AzAccount"        -ModuleName "AzSql.PowerShell" -Verifiable -ParameterFilter $filter 
+        Mock -CommandName "Assert-ServiceConnection" -ModuleName "AzSql.PowerShell" -Verifiable 
+
+        # execute mock login
+        Connect-AzSqlPsAccount -SystemAssignedManagedIdentity
 
         # verify mocks
         Should -InvokeVerifiable

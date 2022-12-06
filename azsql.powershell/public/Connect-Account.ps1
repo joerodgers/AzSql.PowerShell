@@ -3,7 +3,12 @@
     [cmdletbinding()]
     param
     (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,ParameterSetName="identity")]
+        [switch]
+        $SystemAssignedManagedIdentity,
+
+        [Parameter(Mandatory=$true,ParameterSetName="secret")]
+        [Parameter(Mandatory=$true,ParameterSetName="thumbprint")]
         [string]
         $ClientId,
 
@@ -15,7 +20,8 @@
         [string]
         $CertificateThumbprint,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,ParameterSetName="secret")]
+        [Parameter(Mandatory=$true,ParameterSetName="thumbprint")]
         [string]
         $TenantId
     )
@@ -37,7 +43,7 @@
                             -ServicePrincipal `
                             -Force
         }
-        else 
+        elseif( $PSCmdlet.ParameterSetName -eq "thumbprint" )
         {
             $null = Connect-AzAccount `
                             -ApplicationId         $ClientId `
@@ -45,6 +51,12 @@
                             -ContextName           $contextname `
                             -Tenant                $TenantId `
                             -ServicePrincipal `
+                            -Force
+        }
+        else # managed identity
+        {
+            $null = Connect-AzAccount `
+                            -Identity `
                             -Force
         }
 
