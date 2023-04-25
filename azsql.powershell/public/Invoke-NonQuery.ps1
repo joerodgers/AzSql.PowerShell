@@ -27,6 +27,11 @@
         [string]
         $Query,
 
+        # Switch indicating if this is a stored procedure call
+        [Parameter(Mandatory=$false)]
+        [System.Data.CommandType]
+        $CommandType = [System.Data.CommandType]::Text,
+
         # Hashtable of parameters to the SQL query.  Do not include the '@' character in the key name.
         [Parameter(Mandatory=$false)]
         [HashTable]
@@ -52,7 +57,8 @@
             {
                 $command = New-Object System.Data.SqlClient.SqlCommand($Query, $connection)     
                 $command.CommandTimeout = $CommandTimeout
-
+                $command.CommandType    = $CommandType
+                
                 foreach( $parameter in $Parameters.GetEnumerator() )
                 {
                     if( $null -eq $parameter.Value )
