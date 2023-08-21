@@ -23,7 +23,15 @@
         [Parameter(Mandatory=$true,ParameterSetName="secret")]
         [Parameter(Mandatory=$true,ParameterSetName="thumbprint")]
         [string]
-        $TenantId
+        $TenantId,
+
+        [Parameter(Mandatory=$false)]
+        [string]
+        $DatabaseName,
+
+        [Parameter(Mandatory=$false)]
+        [string]
+        $DatabaseServer
     )
 
     begin

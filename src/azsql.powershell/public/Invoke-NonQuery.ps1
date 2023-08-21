@@ -27,7 +27,7 @@
         [string]
         $Query,
 
-        # Switch indicating if this is a stored procedure call
+        # Command Type
         [Parameter(Mandatory=$false)]
         [System.Data.CommandType]
         $CommandType = [System.Data.CommandType]::Text,
