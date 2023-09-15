@@ -42,8 +42,9 @@
         {
             $connection = New-DatabaseConnection -DatabaseName $DatabaseName -DatabaseServer $DatabaseServer
 
-            $command = New-Object system.Data.SqlClient.SqlCommand($Query, $connection)     
+            $command = New-Object System.Data.SqlClient.SqlCommand($Query, $connection)
             $command.CommandTimeout = $CommandTimeout
+            $command.CommandType    = [System.Data.CommandType]::Text
 
             $dataSet     = New-Object System.Data.DataSet     
             $dataAdapter = New-Object System.Data.SqlClient.SqlDataAdapter( $command )
