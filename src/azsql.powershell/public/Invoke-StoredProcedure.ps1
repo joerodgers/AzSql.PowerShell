@@ -3,14 +3,6 @@
    [CmdletBinding()]
    param
    (
-        [Parameter(Mandatory=$true)]
-        [string]
-        $DatabaseName,
-
-        [Parameter(Mandatory=$true)]
-        [string]
-        $DatabaseServer,
-
         # TSQL statement
         [Parameter(Mandatory=$true)]
         [string]
@@ -40,9 +32,7 @@
     {
         try
         {
-            $connection = New-DatabaseConnection -DatabaseName $DatabaseName -DatabaseServer $DatabaseServer
-
-            if( $connection )
+            if( $connection = New-DatabaseConnection )
             {
                 $command = New-Object System.Data.SqlClient.SqlCommand($StoredProcedure, $connection)     
                 $command.CommandTimeout = $CommandTimeout
@@ -52,17 +42,17 @@
                 {
                     if( $null -eq $parameter.Value )
                     {
-                        # Write-PSFMessage -Message "Parameter: $($parameter.Key), Value=DBNULL" -Level Debug
+                        Write-Debug -Message "Parameter: $($parameter.Key), Value=DBNULL"
                         $null = $command.Parameters.AddWithValue( "@$($parameter.Key)", [System.DBNull]::Value )
                     }
                     else 
                     {
-                        # Write-PSFMessage -Message "Parameter: $($parameter.Key), Value='$($parameter.Value)'" -Level Debug
+                        Write-Debug -Message "Parameter: $($parameter.Key), Value='$($parameter.Value)'"
                         $null = $command.Parameters.AddWithValue( "@$($parameter.Key)", $parameter.Value )
                     }
                 }
 
-                Write-PSFMessage -Message "Executing stored procedure: '$StoredProcedure'" -Level Debug
+                Write-Debug -Message "Executing stored procedure: '$StoredProcedure'"
 
                 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
@@ -70,7 +60,7 @@
                 $dataAdapter = New-Object System.Data.SqlClient.SqlDataAdapter( $command )
                 $dataAdapter.Fill($dataSet)
 
-                Write-PSFMessage -Message "Executed store procedure '$StoredProcedure' in $($stopwatch.Elapsed.TotalMilliseconds)ms" -Level Debug
+                Write-Debug -Message "Executed store procedure '$StoredProcedure' in $($stopwatch.Elapsed.TotalMilliseconds)ms"
 
                 switch( $As )
                 {
@@ -108,16 +98,17 @@
         }
         catch
         {
-            Stop-PSFFunction -Message "Failed to execute stored procedure: $StoredProcedure." -Exception $_.Exception  -EnableException $true
+            Write-Error -Message "Failed to execute stored procedure: $StoredProcedure."
+            throw $_.Exception
         }
         finally
         {
-            if($command)
+            if( $null -ne $command )
             {
                 $command.Dispose()
             }
 
-            if($connection)
+            if( $null -ne $connection )
             {
                 $connection.Close()
                 $connection.Dispose()

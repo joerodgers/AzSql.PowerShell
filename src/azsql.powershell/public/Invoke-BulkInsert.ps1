@@ -3,14 +3,6 @@
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory=$true)]
-        [string]
-        $DatabaseName,
-
-        [Parameter(Mandatory=$true)]
-        [string]
-        $DatabaseServer,
-
         [parameter(Mandatory=$true)]
         [System.Data.DataTable]
         $DataTable,
@@ -37,13 +29,9 @@
     }
     process
     {
-        Assert-ServiceConnection -Cmdlet $PSCmdlet
-
         try
         {
-            $connection = New-DatabaseConnection -DatabaseName $DatabaseName -DatabaseServer $DatabaseServer
-
-            if( $connection )
+            if( $connection = New-DatabaseConnection )
             {
                 # create the bulk insert object
                 $bulkCopy = New-Object System.Data.SqlClient.SqlBulkCopy($connection)

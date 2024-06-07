@@ -3,14 +3,6 @@
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory=$true)]
-        [string]
-        $DatabaseName,
-
-        [Parameter(Mandatory=$true)]
-        [string]
-        $DatabaseServer,
-
         # TSQL statement
         [Parameter(Mandatory=$true)]
         [string]
@@ -34,65 +26,65 @@
     )
     begin
     {
-        Assert-ServiceConnection -Cmdlet $PSCmdlet
     }
     process
     {
         try
         {
-            $connection = New-DatabaseConnection -DatabaseName $DatabaseName -DatabaseServer $DatabaseServer
-
-            $command = New-Object System.Data.SqlClient.SqlCommand($Query, $connection)
-            $command.CommandTimeout = $CommandTimeout
-            $command.CommandType    = [System.Data.CommandType]::Text
-
-            $dataSet     = New-Object System.Data.DataSet     
-            $dataAdapter = New-Object System.Data.SqlClient.SqlDataAdapter( $command )
-
-            foreach( $parameter in $Parameters.GetEnumerator() )
+            if( $connection = New-DatabaseConnection )
             {
-                if( $null -eq $parameter.Value )
-                {
-                    $null = $command.Parameters.AddWithValue( "@$($parameter.Key)", [System.DBNull]::Value )
-                }
-                else 
-                {
-                    $null = $command.Parameters.AddWithValue( "@$($parameter.Key)", $parameter.Value )
-                }
-            }
+                $command = New-Object System.Data.SqlClient.SqlCommand($Query, $connection)
+                $command.CommandTimeout = $CommandTimeout
+                $command.CommandType    = [System.Data.CommandType]::Text
 
-            $null = $dataAdapter.Fill($dataSet)
+                $dataSet     = New-Object System.Data.DataSet     
+                $dataAdapter = New-Object System.Data.SqlClient.SqlDataAdapter( $command )
 
-            switch( $As )
-            {
-                "DataSet"
+                foreach( $parameter in $Parameters.GetEnumerator() )
                 {
-                    $dataSet
-                }
-                "DataTable"
-                {
-                    $dataSet.Tables
-                }
-                "DataRow"
-                {
-                    if ($dataSet.Tables.Count -gt 0)
+                    if( $null -eq $parameter.Value )
                     {
-                        $dataSet.Tables[0]
-                    }                
-                }
-                "PSObject"
-                {
-                    if ($dataSet.Tables.Count -ne 0) 
+                        $null = $command.Parameters.AddWithValue( "@$($parameter.Key)", [System.DBNull]::Value )
+                    }
+                    else 
                     {
-                        $dataSet.Tables[0] | ConvertTo-PSCustomObject
+                        $null = $command.Parameters.AddWithValue( "@$($parameter.Key)", $parameter.Value )
                     }
                 }
-                "SingleValue"
+
+                $null = $dataAdapter.Fill($dataSet)
+
+                switch( $As )
                 {
-                    if ($dataSet.Tables.Count -ne 0)
+                    "DataSet"
                     {
-                        $dataSet.Tables[0].Rows[0] | Select-Object -ExpandProperty $dataSet.Tables[0].Columns[0].ColumnName
-                    }         
+                        $dataSet
+                    }
+                    "DataTable"
+                    {
+                        $dataSet.Tables
+                    }
+                    "DataRow"
+                    {
+                        if ($dataSet.Tables.Count -gt 0)
+                        {
+                            $dataSet.Tables[0]
+                        }                
+                    }
+                    "PSObject"
+                    {
+                        if ($dataSet.Tables.Count -ne 0) 
+                        {
+                            $dataSet.Tables[0] | ConvertTo-PSCustomObject
+                        }
+                    }
+                    "SingleValue"
+                    {
+                        if ($dataSet.Tables.Count -ne 0)
+                        {
+                            $dataSet.Tables[0].Rows[0] | Select-Object -ExpandProperty $dataSet.Tables[0].Columns[0].ColumnName
+                        }         
+                    }
                 }
             }
         }
@@ -102,12 +94,12 @@
         }
         finally
         {
-            if($dataSet)
+            if( $null -ne $dataSet )
             {
                 $dataSet.Dispose()
             }
 
-            if($dataAdapter)
+            if( $null -ne $dataAdapter )
             {
                 $dataAdapter.Dispose()
             }

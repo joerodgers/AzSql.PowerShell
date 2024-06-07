@@ -3,10 +3,10 @@
     Executes the provided TSQL statement against the specified database and SQL instance.
 
  .EXAMPLE
-    Invoke-NonQuery -DatabaseName "Users" -DatabaseServer "SQL01\INSTANCENAME" -Query "INSERT INTO Users (UserName, Email) VALUES ('johndoe', 'johndoe@contoso.com')"
+    Invoke-NonQuery -Query "INSERT INTO Users (UserName, Email) VALUES ('johndoe', 'johndoe@contoso.com')"
 
  .EXAMPLE
-    Invoke-NonQuery -DatabaseName "Users" -DatabaseServer "SQL01\INSTANCENAME" -Query "INSERT INTO Users (UserName, Email) VALUES (@UserName, @EmailAddress)" -Parameters @{ UserName = "johndoe"; EmailAddress = "johndoe@contoso.com" } 
+    Invoke-NonQuery -Query "INSERT INTO Users (UserName, Email) VALUES (@UserName, @EmailAddress)" -Parameters @{ UserName = "johndoe"; EmailAddress = "johndoe@contoso.com" } 
 
  #>
  function Invoke-NonQuery
@@ -14,14 +14,6 @@
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory=$true)]
-        [string]
-        $DatabaseName,
-
-        [Parameter(Mandatory=$true)]
-        [string]
-        $DatabaseServer,
-        
         # TSQL statement
         [Parameter(Mandatory=$true)]
         [string]
@@ -45,15 +37,12 @@
 
     begin
     {
-        Assert-ServiceConnection -Cmdlet $PSCmdlet
     }
     process
     {
         try
         {
-            $connection = New-DatabaseConnection -DatabaseName $DatabaseName -DatabaseServer $DatabaseServer
-
-            if( $connection )
+            if( $connection = New-DatabaseConnection )
             {
                 $command = New-Object System.Data.SqlClient.SqlCommand($Query, $connection)     
                 $command.CommandTimeout = $CommandTimeout
@@ -63,32 +52,34 @@
                 {
                     if( $null -eq $parameter.Value )
                     {
-                        Write-PSFMessage -Message "Parameter: $($parameter.Key), Value=DBNULL" -Level Debug
+                        Write-Debug -Message "Parameter: $($parameter.Key), Value=DBNULL"
                         $null = $command.Parameters.AddWithValue( "@$($parameter.Key)", [System.DBNull]::Value )
                     }
                     else 
                     {
-                        Write-PSFMessage -Message "Parameter: $($parameter.Key), Value='$($parameter.Value)'" -Level Debug
+                        Write-Debug -Message "Parameter: $($parameter.Key), Value='$($parameter.Value)'"
                         $null = $command.Parameters.AddWithValue( "@$($parameter.Key)", $parameter.Value )
                     }
                 }
 
-                Write-PSFMessage -Message "Executing Query: $Query" -Level Debug
+                Write-Debug -Message "Executing Query: $Query" -Level Debug
                 $null = $command.ExecuteNonQuery()
             }
         }
         catch
         {
-            Stop-PSFFunction -Message "Failed to execute non-query: $Query" -EnableException $true -Exception $_.Exception
+            Write-Error -Message "Failed to execute non-query: $Query"
+
+            throw $_.Exception
         }
         finally
         {
-            if($command)
+            if( $null -ne $command )
             {
                 $command.Dispose()
             }
 
-            if($connection)
+            if( $null -ne $connection )
             {
                 $connection.Close()
                 $connection.Dispose()
