@@ -43,6 +43,16 @@ Connect-AzSqlPsAccount `
 ```
 
 ```Powershell
+
+$certificate = Get-AzKeyVaultCertificate -VaultName "ContosoKV01" -Name "TestCert01"
+
+Connect-AzSqlPsAccount `
+    -ClientId    $env:O365_CLIENTID `
+    -Certificate $certificate `
+    -TenantId    $env:O365_TENANTID
+```
+
+```Powershell
 Connect-AzSqlPsAccount `
             -ClientId     $env:O365_CLIENTID `
             -ClientSecret $env:O365_CLIENTSECRET `
@@ -53,16 +63,12 @@ Connect-AzSqlPsAccount `
 
 ```Powershell
 $rows = Get-AzSqlPsDataTable `
-    -DatabaseName   "contoso-sales" `
-    -DatabaseServer "contososales.database.windows.net" `
     -Query          "SELECT * FROM sales" `
     -As             "PSObject"
 ```
 
 ```Powershell
 $rows = Get-AzSqlPsDataTable `
-    -DatabaseName   "contoso-sales" `
-    -DatabaseServer "contososales.database.windows.net" `
     -Query          "SELECT * FROM sales WHERE CustomerId = @CustomerId" `
     -Parameters     @{ CustomerId = 1234 } `
     -As             "PSObject" `
@@ -72,15 +78,11 @@ $rows = Get-AzSqlPsDataTable `
 
 ```Powershell
 Invoke-AzSqlPsNonQuery `
-    -DatabaseName   "contoso-sales" `
-    -DatabaseServer "contososales.database.windows.net" `
     -Query          "INSERT INTO dbo.sales (CustomerId, Amount) VALUES (1, 100)"
 ```
 
 ```Powershell
 Invoke-AzSqlPsNonQuery `
-    -DatabaseName   "contoso-sales" `
-    -DatabaseServer "contososales.database.windows.net" `
     -Query          "INSERT INTO sales (CustomerId, Amount) VALUES (@CustomerId, @Amount)" `
     -Parameters     @{ CustomerId = 1234; Amount = 10000 }
 ```
@@ -91,15 +93,11 @@ Invoke-AzSqlPsNonQuery `
 
 ```Powershell
 $count = Invoke-AzSqlPsScalarQuery `
-    -DatabaseName   "contoso-sales" `
-    -DatabaseServer "contososales.database.windows.net" `
     -Query          "SELECT COUNT(sales) FROM dbo.sales WHERE Amount > 100"
 ```    
 
 ```Powershell
 $count = Invoke-AzSqlPsScalarQuery `
-    -DatabaseName   "contoso-sales" `
-    -DatabaseServer "contososales.database.windows.net" `
     -Query          "SELECT COUNT(sales) WHERE Amount > @Amount" `
     -Parameters     @{ Amount = 10000 }
 ```    
