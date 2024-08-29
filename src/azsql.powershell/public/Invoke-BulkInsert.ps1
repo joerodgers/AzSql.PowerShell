@@ -21,7 +21,11 @@
 
         [Parameter(Mandatory=$false)]
         [int]
-        $NotifyAfter = 10000
+        $NotifyAfter = 10000,
+
+        [Parameter(Mandatory=$false)]
+        [Hashtable]
+        $ColummMappings = @{}
     )
     begin 
     {
@@ -40,6 +44,21 @@
                 $bulkCopy.BulkCopyTimeout      = 10000000
                 $bulkCopy.NotifyAfter          = $NotifyAfter
                 $bulkCopy.Add_SqlRowsCopied( $rowsCopiedEvent )
+                
+                # build a default mapping using the provided columns if no customer mappings provided
+                if( -not $PSBoundParameters.ContainsKey( "ColummMappings" ) )
+                {
+                    foreach( $column in $DataTable.Columns )
+                    {
+                        $ColummMappings[$column.ColumnName] = $column.ColumnName
+                    }
+                }
+
+                # set the column mappings
+                foreach( $mapping in $ColummMappings.GetEnumerator() )
+                {
+                    $bulkCopy.ColumnMappings.Add( $mapping.Key, $mapping.Value )
+                }
 
                 # insert the data 
                 $bulkCopy.WriteToServer($DataTable)
