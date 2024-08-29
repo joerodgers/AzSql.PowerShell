@@ -9,12 +9,19 @@ namespace AzSqlPowerShell
 
         public string DatabaseServer {get; set;}
 
-        public int ConnectTimeout {get; set;} = 15;
+        public int ConnectTimeout {get; set;}
 
-        public bool Encrypt {get; set;} = true;
+        public bool Encrypt {get; set;}
 
         public System.Guid TenantId = System.Guid.Empty;
+
+        protected Connection()
+        {
+           ConnectTimeout = 15;
+           Encrypt        = true;
+        }
     }
+
 
     public class ServicePrincipalSecretConnection : Connection
     {

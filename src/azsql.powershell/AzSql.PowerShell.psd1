@@ -3,7 +3,7 @@
     RootModule = 'AzSql.PowerShell.psm1'
 
     # Version number of this module.
-    ModuleVersion = '2.1.0'
+    ModuleVersion = '2.1.1'
 
     # ID used to uniquely identify this module
     GUID = '3d647b5b-7f1a-4116-9748-460ee30778f9'
